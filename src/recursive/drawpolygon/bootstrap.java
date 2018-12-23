@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import recursive.drawpolygon.entity.RegularPolygonPane;
 
-public class bootstraps extends Application {
+public class bootstrap extends Application {
 	public static void main(String[] args) {
 		Application.launch(args);
 	}

@@ -2,7 +2,7 @@ package dynamicplanning.integralProblem;
 
 import dynamicplanning.integralProblem.entity.Merchandise;
 
-public class bootstraps {
+public class bootstrap {
 	private static int[][] table;
 
 	public static void main(String[] args) {

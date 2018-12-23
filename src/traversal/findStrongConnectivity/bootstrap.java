@@ -14,7 +14,7 @@ import traversal.findStrongConnectivity.entity.UnweightedGraph;
  * @author 卧龙
  *
  */
-public class bootstraps {
+public class bootstrap {
     public static int count = 1;   //用于对图中顶点遍历的次序进行计数
     public static int[] DFN;    //记录图中每个节点的DFS遍历的时间戳(即次序)
     public static int[] Low;   //记录每个顶点的所在树的根节点编号

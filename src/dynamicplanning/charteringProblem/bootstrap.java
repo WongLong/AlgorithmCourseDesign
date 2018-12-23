@@ -1,6 +1,6 @@
 package dynamicplanning.charteringProblem;
 
-public class bootstraps {
+public class bootstrap {
 	private static int[][] table;
 	private static int[][] flag;
 
