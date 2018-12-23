@@ -626,5 +626,10 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 				line.line.setStroke(Color.BLACK);
 		}
 	}
+	
+	public void findSite() {
+		creatWeightedGraph();
+		
+	}
 
 }

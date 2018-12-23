@@ -184,8 +184,13 @@ public class bootstrap extends Application {
 			}
 		});
 
-		findSite.setOnAction(e -> {
-			
+		findSite.setOnAction(new EventHandler<ActionEvent>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void handle(ActionEvent event) {
+				GraphPane<String> gPane = (GraphPane<String>) sp.getContent();
+				gPane.findSite();
+			}
 		});
 
 		radioBt.setOnAction(new EventHandler<ActionEvent>() {
