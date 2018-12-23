@@ -18,11 +18,4 @@ public class UnweightedGraph<V> extends AbstractGraph<V> {
 	public UnweightedGraph(List<Edge> edges, List<V> vertices) {
 		super(edges, vertices);
 	}
-	
-	public List<Integer> findStrongConnectity(){
-		
-		
-		return null;
-	}
-	
 }
