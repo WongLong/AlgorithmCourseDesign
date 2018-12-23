@@ -4,50 +4,16 @@ import java.util.List;
 
 import additional.supermarketSelectSite.entity.AbstractGraph.Edge;
 import additional.supermarketSelectSite.entity.GraphNode.LineNode;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.stage.Stage;
+import javafx.scene.control.Alert;
 
 public class Util {
 	// 消息提醒框
-	public static Stage Alert(String str) {
-		final Stage stage = new Stage();
-
-		Label label = new Label(str);
-		label.setPrefWidth(400);
-		BorderPane bPane1 = new BorderPane();
-		bPane1.setPrefSize(400, 200);
-		bPane1.setCenter(label);
-
-		Button bt = new Button("确定");
-		bt.setPrefSize(100, 50);
-		BorderPane bPane11 = new BorderPane();
-		bPane11.setCenter(bt);
-
-		bt.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent arg0) {
-				stage.close();
-			}
-		});
-
-		VBox vbox = new VBox();
-		vbox.getChildren().addAll(bPane1, bPane11);
-
-		Scene scene = new Scene(vbox);
-		stage.setTitle("消息");
-		stage.setScene(scene);
-		stage.show();
-
-		return stage;
+	public static void Alert(String str) {
+		new Alert(AlertType.ERROR, str, ButtonType.OK).showAndWait();
 	}
 
 	public static int circleIndexOf(List<GraphNode> graphNodes, Circle circle) {

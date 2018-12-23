@@ -34,7 +34,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-
 public class GraphPane<E extends Comparable<E>> extends Pane {
 	UnweightedGraph<E> unweightedGraph; // 无权图
 	protected List<Edge> edges = new ArrayList<>(); // 边
@@ -43,6 +42,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 	private List<GraphNode> graphNodes = new ArrayList<GraphNode>(); // 图节点
 	private Stack<Line> lineStack = new Stack<>(); // 拖动线操作保存的栈
 	private static final int RADIUS = 5; // 图节点半径
+	private List<Double> frequencys = new ArrayList<>();	// 到超市的频率
 	private boolean isWeightGraph;
 
 	public GraphPane(boolean isWeightGraph) {
@@ -52,31 +52,42 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 			@Override
 			public void handle(final MouseEvent e) {
 				if (e.isAltDown()) {
-					Label label = new Label("Enter a key: ");
-					label.setPrefHeight(40);
-					final TextField text = new TextField();
+					Label label1 = new Label("输入单位的名称:");
+					label1.setPrefHeight(40);
+					TextField text1 = new TextField();
 					BorderPane bp1 = new BorderPane();
 					bp1.setPrefHeight(40);
-					bp1.setCenter(text);
+					bp1.setCenter(text1);
+
+					HBox h1 = new HBox();
+					h1.getChildren().addAll(label1, bp1);
+
+					Label label2 = new Label("输入到超市频率:");
+					label2.setPrefHeight(40);
+					TextField text2 = new TextField();
+					BorderPane bp2 = new BorderPane();
+					bp2.setPrefHeight(40);
+					bp2.setCenter(text2);
+
+					HBox h2 = new HBox();
+					h2.getChildren().addAll(label2, bp2);
 
 					Button ensure = new Button("确定");
 					Button cancel = new Button("取消");
 
-					BorderPane bp2 = new BorderPane();
-					bp2.setLeft(cancel);
-					bp2.setRight(ensure);
-
-					HBox head = new HBox();
-					head.getChildren().addAll(label, bp1);
+					BorderPane bp3 = new BorderPane();
+					bp3.setLeft(cancel);
+					bp3.setRight(ensure);
 
 					VBox body = new VBox();
-					body.getChildren().addAll(head, bp2);
+					body.getChildren().addAll(h1, h2, bp3);
 
 					Scene scene = new Scene(body);
 
-					final Stage stage = new Stage();
+					Stage stage = new Stage();
 					stage.setScene(scene);
 					stage.setTitle("输入顶点");
+					stage.setResizable(false);
 					stage.initModality(Modality.APPLICATION_MODAL);
 					stage.show();
 
@@ -91,13 +102,22 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 						@SuppressWarnings("unchecked")
 						@Override
 						public void handle(ActionEvent arg0) {
-							String str = text.getText();
-							if (str == null) {
-								Util.Alert("输入有误！！！");
+
+							try {
+								String name = text1.getText();
+								Double frequency = new Double(text2.getText());
+
+								if (name.trim().equals("") || frequency <= 0 || frequency > 1) {
+									throw new Exception();
+								}
+								
+								addVertices(e.getX(), e.getY(), (E) name, frequency);
+								stage.close();
+							} catch (Exception e) {
+								Util.Alert("输入有误！");
+
 								return;
 							}
-							addVertices(e.getX(), e.getY(), (E) str);
-							stage.close();
 						}
 					});
 				}
@@ -107,10 +127,11 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 	}
 
 	// 添加图节点
-	public void addVertices(double x, double y, E e) {
+	public void addVertices(double x, double y, E e, Double frequency) {
 		final Circle circle = new Circle(x, y, RADIUS); // 绘制图节点
 		final Text text = new Text(x - 8, y - 8, e.toString()); // 绘制泛型数据
 
+		frequencys.add(frequency);	// 添加频率
 		vertices.add(e); // 添加顶点
 		GraphNode gNode = new GraphNode(new VerticeNode(circle, text));
 		graphNodes.add(gNode); // 存入图节点
@@ -151,9 +172,8 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 									node = graphNodes.get(edge.u);
 
 								getChildren().remove(lNode.line);
-								lNode.line = new Line(x, y,
-										node.verticeNode.circle.getCenterX(),
-										node.verticeNode.circle.getCenterY());					
+								lNode.line = new Line(x, y, node.verticeNode.circle.getCenterX(),
+										node.verticeNode.circle.getCenterY());
 								getChildren().add(lNode.line);
 								// 设置CTRL+鼠标主键移除该线事件
 								lNode.line.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -171,27 +191,23 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 										}
 									}
 								});
-								
+
 								// 调整权值框位置
 								if (isWeightGraph) {
 									Text weightText = lNode.weightText;
-									weightText
-											.setX((x + node.verticeNode.circle
-													.getCenterX()) / 2);
-									weightText
-											.setY((y + node.verticeNode.circle
-													.getCenterY()) / 2);
+									weightText.setX((x + node.verticeNode.circle.getCenterX()) / 2);
+									weightText.setY((y + node.verticeNode.circle.getCenterY()) / 2);
 								}
 							}
-							
+
 							// 鼠标放开事件
 							circle.setOnMouseReleased(new EventHandler<MouseEvent>() {
 								@Override
 								public void handle(MouseEvent arg0) {
-									
+
 								}
 							});
-							
+
 						}
 					});
 				} else {
@@ -205,8 +221,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 							final double x = e1.getX(); // 获得鼠标坐标
 							final double y = e1.getY();
 
-							Line line = new Line(x, y, circle.getCenterX(),
-									circle.getCenterY()); // 创建线
+							Line line = new Line(x, y, circle.getCenterX(), circle.getCenterY()); // 创建线
 							lineStack.add(line); // 存入栈
 							getChildren().add(lineStack.peek()); // 显示该线
 
@@ -219,10 +234,8 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 
 									int index = getEndNodeIndex(circle, x, y); // 判断鼠标放开是的坐标是否在创建的图节点上
 									if (index != -1)
-										if (!graphNodes.get(index).verticeNode.circle
-												.equals(circle))
-											addEdge(Util.circleIndexOf(
-													graphNodes, circle), index);
+										if (!graphNodes.get(index).verticeNode.circle.equals(circle))
+											addEdge(Util.circleIndexOf(graphNodes, circle), index);
 								}
 							});
 						}
@@ -235,10 +248,8 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 	// 判断鼠标放开时鼠标是否在图节点上，是则返回该图节点的下标，否则返回-1
 	private int getEndNodeIndex(Circle circle, double x, double y) {
 		for (int i = 0; i < graphNodes.size(); i++) {
-			double distance = Math.sqrt(Math.pow(
-					(x - graphNodes.get(i).verticeNode.circle.getCenterX()), 2)
-					+ Math.pow((y - graphNodes.get(i).verticeNode.circle
-							.getCenterY()), 2));
+			double distance = Math.sqrt(Math.pow((x - graphNodes.get(i).verticeNode.circle.getCenterX()), 2)
+					+ Math.pow((y - graphNodes.get(i).verticeNode.circle.getCenterY()), 2));
 			if (distance <= RADIUS * 1.5)
 				return i;
 		}
@@ -251,12 +262,12 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 		Circle circle1 = graphNodes.get(index1).verticeNode.circle; // 获得该下标对应的图节点的圆属性
 		Circle circle2 = graphNodes.get(index2).verticeNode.circle; // 获得该下标对应的图节点的圆属性
 
-		final Line line = new Line(circle1.getCenterX(), circle1.getCenterY(),
-				circle2.getCenterX(), circle2.getCenterY()); // 画2个节点之间的线
+		final Line line = new Line(circle1.getCenterX(), circle1.getCenterY(), circle2.getCenterX(),
+				circle2.getCenterY()); // 画2个节点之间的线
 		this.getChildren().add(line);
 
 		if (isWeightGraph) {
-			Label label = new Label("Enter Weight: ");
+			Label label = new Label("输入距离: ");
 			label.setPrefHeight(40);
 			final TextField text = new TextField();
 			BorderPane bp1 = new BorderPane();
@@ -316,38 +327,36 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 	}
 
 	// 添加边之后添加相应的数据
-	private void addData(final int index1, final int index2, final Line line,
-			final Double weight) {
+	private void addData(final int index1, final int index2, final Line line, final Double weight) {
 		Circle circle1 = graphNodes.get(index1).verticeNode.circle; // 获得该下标对应的图节点的圆属性
 		Circle circle2 = graphNodes.get(index2).verticeNode.circle; // 获得该下标对应的图节点的圆属性
 
 		Edge[] edge = new Edge[2];
-		final Text weightText = new Text(
-				(circle1.getCenterX() + circle2.getCenterX()) / 2,
+		final Text weightText = new Text((circle1.getCenterX() + circle2.getCenterX()) / 2,
 				(circle1.getCenterY() + circle2.getCenterY()) / 2, weight + "");
 		// 鼠标右键点击更改权值
 		weightText.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent e) {
-				if(e.getButton() == MouseButton.SECONDARY){
+				if (e.getButton() == MouseButton.SECONDARY) {
 					final TextField input = new TextField();
 					input.setPrefSize(50, 30);
 					input.setLayoutX(weightText.getX() - 5);
 					input.setLayoutY(weightText.getY() - 20);
 					getChildren().add(input);
-					
+
 					input.setOnKeyPressed(new EventHandler<KeyEvent>() {
 						@Override
 						public void handle(KeyEvent e) {
-							if(KeyCode.ESCAPE == e.getCode())
+							if (KeyCode.ESCAPE == e.getCode())
 								getChildren().remove(input);
-							else if(KeyCode.ENTER == e.getCode()){
-								try{
+							else if (KeyCode.ENTER == e.getCode()) {
+								try {
 									Double newWeight = new Double(input.getText());
 									weightText.setText(newWeight + "");
 									changeWeight(index1, index2, newWeight);
 									getChildren().remove(input);
-								}catch(NumberFormatException e1){
+								} catch (NumberFormatException e1) {
 									Util.Alert("输入有误！！！");
 									getChildren().remove(input);
 									return;
@@ -358,8 +367,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 				}
 			}
 		});
-		
-		
+
 		if (weight != null) {
 			edge[0] = new WeightedEdge(index1, index2, weight);
 			edge[1] = new WeightedEdge(index2, index1, weight);
@@ -403,28 +411,27 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 
 	// 移除线节点
 	private void removeLineNode(int index1, int index2, Line line) {
-		for(LineNode lNode : graphNodes.get(index1).edgeNodes){
-			if(lNode.line.equals(line)){
+		for (LineNode lNode : graphNodes.get(index1).edgeNodes) {
+			if (lNode.line.equals(line)) {
 				graphNodes.get(index1).edgeNodes.remove(lNode);
 				break;
 			}
 		}
-		
-		for(LineNode lNode : graphNodes.get(index2).edgeNodes){
-			if(lNode.line.equals(line)){
+
+		for (LineNode lNode : graphNodes.get(index2).edgeNodes) {
+			if (lNode.line.equals(line)) {
 				graphNodes.get(index2).edgeNodes.remove(lNode);
 				break;
 			}
 		}
-		
+
 		removeEdge(index1, index2); // 删除边
 	}
 
 	// 移除边
 	private void removeEdge(int u, int v) {
 		for (int i = 0; i < edges.size(); i++)
-			if (edges.get(i).u == u && edges.get(i).v == v
-					|| edges.get(i).u == v && edges.get(i).v == u) {
+			if (edges.get(i).u == u && edges.get(i).v == v || edges.get(i).u == v && edges.get(i).v == u) {
 				edges.remove(i);
 				i--;
 			}
@@ -440,12 +447,12 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 	}
 
 	// 更改权值
-	private void changeWeight(int index1, int index2, double newWeight){
-		for(Edge edge : edges)
-			if(edge.u == index1 && edge.v == index2 || edge.u == index2 && edge.v == index1)
-				((WeightedEdge)edge).weight = newWeight;
+	private void changeWeight(int index1, int index2, double newWeight) {
+		for (Edge edge : edges)
+			if (edge.u == index1 && edge.v == index2 || edge.u == index2 && edge.v == index1)
+				((WeightedEdge) edge).weight = newWeight;
 	}
-	
+
 	// 创建无权图
 	private void creatUnweightedGraph() {
 		unweightedGraph = new UnweightedGraph<>(edges, vertices);
@@ -457,8 +464,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 
 		int startIndex = weightedGraph.getIndex(start);
 		int endIndex = weightedGraph.getIndex(end);
-		List<E> shortestPath = weightedGraph.getShortestPath(endIndex).getPath(
-				startIndex);
+		List<E> shortestPath = weightedGraph.getShortestPath(endIndex).getPath(startIndex);
 
 		List<Integer> path = new ArrayList<>();
 		List<Edge> visitedEdge = new ArrayList<>();
@@ -483,8 +489,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 
 		List<Edge> visitedEdge = new ArrayList<>();
 
-		WeightedGraph<E>.MST mst = weightedGraph
-				.getMinimumSpanningTree(startIndex);
+		WeightedGraph<E>.MST mst = weightedGraph.getMinimumSpanningTree(startIndex);
 		List<Integer> path = mst.getSearchOrders();
 
 		for (int i = 1; i < path.size(); i++)
@@ -518,8 +523,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 		drawPath(path, visitedEdge);
 	}
 
-	private void dfs(int index, int[] visited, List<Integer> path,
-			List<Edge> visitedEdge) {
+	private void dfs(int index, int[] visited, List<Integer> path, List<Edge> visitedEdge) {
 		visited[index] = index; // 设置该顶点已被访问
 		path.add(index); // 添加路径
 
@@ -572,13 +576,12 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 
 		drawPath(path.remove(0), null);
 
-		final Timeline animation = new Timeline(new KeyFrame(
-				Duration.millis(1500), new EventHandler<ActionEvent>() {
-					public void handle(ActionEvent e) {
-						if (!visitedEdge.isEmpty())
-							drawPath(path.remove(0), visitedEdge.remove(0));
-					}
-				}));
+		final Timeline animation = new Timeline(new KeyFrame(Duration.millis(1500), new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+				if (!visitedEdge.isEmpty())
+					drawPath(path.remove(0), visitedEdge.remove(0));
+			}
+		}));
 		animation.setCycleCount(path.size());
 		animation.play();
 	}
@@ -589,22 +592,19 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 		final Circle circle = node.verticeNode.circle;
 		circle.setFill(Color.RED);
 
-		Timeline animation = new Timeline(new KeyFrame(Duration.millis(500),
-				new EventHandler<ActionEvent>() {
-					public void handle(ActionEvent e) {
-						getChildren().remove(circle);
+		Timeline animation = new Timeline(new KeyFrame(Duration.millis(500), new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+				getChildren().remove(circle);
 
-						Timeline animation = new Timeline(new KeyFrame(
-								Duration.millis(250),
-								new EventHandler<ActionEvent>() {
-									public void handle(ActionEvent e) {
-										getChildren().add(circle);
-									}
-								}));
-						animation.setCycleCount(1);
-						animation.play();
+				Timeline animation = new Timeline(new KeyFrame(Duration.millis(250), new EventHandler<ActionEvent>() {
+					public void handle(ActionEvent e) {
+						getChildren().add(circle);
 					}
 				}));
+				animation.setCycleCount(1);
+				animation.play();
+			}
+		}));
 		animation.setCycleCount(2);
 		animation.play();
 		animation.setOnFinished(new EventHandler<ActionEvent>() {
