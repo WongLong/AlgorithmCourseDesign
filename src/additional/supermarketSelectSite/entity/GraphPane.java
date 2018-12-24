@@ -1,8 +1,10 @@
 package additional.supermarketSelectSite.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -42,7 +44,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 	private List<GraphNode> graphNodes = new ArrayList<GraphNode>(); // 图节点
 	private Stack<Line> lineStack = new Stack<>(); // 拖动线操作保存的栈
 	private static final int RADIUS = 5; // 图节点半径
-	private List<Double> frequencys = new ArrayList<>();	// 到超市的频率
+	private List<Double> frequencys = new ArrayList<>(); // 到超市的频率
 	private boolean isWeightGraph;
 
 	public GraphPane(boolean isWeightGraph) {
@@ -110,7 +112,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 								if (name.trim().equals("") || frequency <= 0 || frequency > 1) {
 									throw new Exception();
 								}
-								
+
 								addVertices(e.getX(), e.getY(), (E) name, frequency);
 								stage.close();
 							} catch (Exception e) {
@@ -129,9 +131,9 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 	// 添加图节点
 	public void addVertices(double x, double y, E e, Double frequency) {
 		final Circle circle = new Circle(x, y, RADIUS); // 绘制图节点
-		final Text text = new Text(x - 8, y - 8, e.toString()); // 绘制泛型数据
+		final Text text = new Text(x - 8, y - 8, e.toString() + ", " + frequency); // 绘制泛型数据
 
-		frequencys.add(frequency);	// 添加频率
+		frequencys.add(frequency); // 添加频率
 		vertices.add(e); // 添加顶点
 		GraphNode gNode = new GraphNode(new VerticeNode(circle, text));
 		graphNodes.add(gNode); // 存入图节点
@@ -242,6 +244,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 					});
 				}
 			}
+
 		});
 	}
 
@@ -458,31 +461,9 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 		unweightedGraph = new UnweightedGraph<>(edges, vertices);
 	}
 
-	// 获得带权图的最短路径
-	public void getShortestPath(E start, E end) {
-		creatWeightedGraph();
-
-		int startIndex = weightedGraph.getIndex(start);
-		int endIndex = weightedGraph.getIndex(end);
-		List<E> shortestPath = weightedGraph.getShortestPath(endIndex).getPath(startIndex);
-
-		List<Integer> path = new ArrayList<>();
-		List<Edge> visitedEdge = new ArrayList<>();
-		for (int i = 0; i < shortestPath.size(); i++) {
-			int u = weightedGraph.getIndex(shortestPath.get(i));
-			path.add(u);
-
-			if (i != shortestPath.size() - 1) {
-				int v = weightedGraph.getIndex(shortestPath.get(i + 1));
-				visitedEdge.add(new Edge(u, v));
-			}
-		}
-
-		drawPath(path, visitedEdge);
-	}
-
 	// 展示最小生成树
 	public void displayMST(E start) {
+		recoverDefault();
 		creatWeightedGraph();
 
 		int startIndex = weightedGraph.getIndex(start);
@@ -508,8 +489,33 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 		weightedGraph = new WeightedGraph<E>(weightedEdges, vertices);
 	}
 
+	// 获得带权图的最短路径
+	public void getShortestPath(E start, E end) {
+		recoverDefault();
+		creatWeightedGraph();
+
+		int startIndex = weightedGraph.getIndex(start);
+		int endIndex = weightedGraph.getIndex(end);
+		List<E> shortestPath = weightedGraph.getShortestPath(endIndex).getPath(startIndex);
+
+		List<Integer> path = new ArrayList<>();
+		List<Edge> visitedEdge = new ArrayList<>();
+		for (int i = 0; i < shortestPath.size(); i++) {
+			int u = weightedGraph.getIndex(shortestPath.get(i));
+			path.add(u);
+
+			if (i != shortestPath.size() - 1) {
+				int v = weightedGraph.getIndex(shortestPath.get(i + 1));
+				visitedEdge.add(new Edge(u, v));
+			}
+		}
+
+		drawPath(path, visitedEdge);
+	}
+
 	// 深度优先遍历
 	public void dfs(E e) {
+		recoverDefault();
 		creatUnweightedGraph();
 
 		int index = unweightedGraph.getIndex(e); // 获得该数据的顶点下标
@@ -539,6 +545,7 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 
 	// 广度优先遍历
 	public void bfs(E e) {
+		recoverDefault();
 		creatUnweightedGraph();
 
 		int index = unweightedGraph.getIndex(e);
@@ -572,11 +579,9 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 
 	// 通过访问路径及访问的边，绘制路径
 	private void drawPath(final List<Integer> path, final List<Edge> visitedEdge) {
-		recoverDefault();
-
 		drawPath(path.remove(0), null);
 
-		final Timeline animation = new Timeline(new KeyFrame(Duration.millis(1500), new EventHandler<ActionEvent>() {
+		final Timeline animation = new Timeline(new KeyFrame(Duration.millis(1100), new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent e) {
 				if (!visitedEdge.isEmpty())
 					drawPath(path.remove(0), visitedEdge.remove(0));
@@ -626,10 +631,125 @@ public class GraphPane<E extends Comparable<E>> extends Pane {
 				line.line.setStroke(Color.BLACK);
 		}
 	}
-	
+
 	public void findSite() {
+		recoverDefault();
 		creatWeightedGraph();
+
+		Integer supermarketIndex = -1;
+		double maxestValue = Double.MIN_VALUE;
+		List<List<Integer>> shortestPath = null;
+
+		for (int i = 0; i < vertices.size(); i++) {
+
+			List<List<Integer>> paths = new ArrayList<>();
+			double value = getMinCosts(i, paths);
+
+			if (value > maxestValue) {
+				maxestValue = value;
+				supermarketIndex = i;
+				shortestPath = paths;
+			}
+
+		}
+
+		showSite(supermarketIndex, shortestPath);
+	}
+
+	
+	private void showSite(Integer index, List<List<Integer>> paths) {
+		Circle circle = graphNodes.get(index).verticeNode.circle;
+		circle.setFill(Color.RED);
+		Text t = new Text(circle.getCenterX(), circle.getCenterY(), "超市位置");
+		t.setFill(Color.BLUE);
+
+		this.getChildren().add(t);
+
+		final Timeline animation = new Timeline(new KeyFrame(Duration.millis((paths.get(0).size() - 1) * 2700), new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+				if (!paths.isEmpty())
+					drawPath(paths.remove(0));
+			}
+		}));
+		animation.setCycleCount(paths.size());
+		animation.play();
+	}
+
+	private void drawPath(List<Integer> paths) {		
+		List<Edge> visitedEdge = new ArrayList<>();
+		for (int i = 0; i < paths.size(); i++) {
+			int u = paths.get(i);
+
+			if (i != paths.size() - 1) {
+				int v = paths.get(i + 1);
+				visitedEdge.add(new Edge(u, v));
+			}
+		}
+
+		drawPath(paths, visitedEdge);
+	}
+
+	// Prim算法
+	private double getMinCosts(int sourceIndex, List<List<Integer>> paths) {
+		List<Integer> T = new ArrayList<>();
+		T.add(sourceIndex);
+
+		int numberOfVertices = vertices.size();
+		int[] parent = new int[numberOfVertices];
+
+		parent[sourceIndex] = -1;
+
+		double[] costs = new double[numberOfVertices];
+		for (int i = 0; i < costs.length; i++)
+			costs[i] = Double.MAX_VALUE;
+		costs[sourceIndex] = 0;
+
+		List<PriorityQueue<WeightedEdge>> queues = this.weightedGraph.deepClone(this.weightedGraph.getWeightedEdges());
+
+		while (T.size() < numberOfVertices) {
+			int v = -1;
+			double smallestCost = Double.MAX_VALUE;
+			for (int u : T) {
+				while (!queues.get(u).isEmpty() && T.contains(queues.get(u).peek().v))
+					queues.get(u).remove();
+
+				if (queues.get(u).isEmpty())
+					continue;
+
+				WeightedEdge e = queues.get(u).peek();
+				if (costs[u] + e.weight < smallestCost) {
+					v = e.v;
+					smallestCost = costs[u] + e.weight;
+					parent[v] = u;
+				}
+			}
+
+			T.add(v);
+			costs[v] = smallestCost;
+		}
+
+		double value = 0;
+		for (int j = 0; j < costs.length; j++) {
+			if (sourceIndex == j)
+				continue;
+
+			value += this.frequencys.get(j) / costs[j];
+			paths.add(getPath(j, parent));
+		}
+		return value;
+	}
+
+	private List<Integer> getPath(int index, int[] parent) {
+		ArrayList<Integer> path = new ArrayList<>();
+
+		do {
+			path.add(index);
+			index = parent[index];
+		} while (index != -1);
+
 		
+		Collections.reverse(path);
+		return path;
 	}
 
 }

@@ -27,7 +27,7 @@ public class bootstrap extends Application {
 		final ScrollPane sp = new ScrollPane();
 		sp.setPrefSize(1000, 800);
 
-		GraphPane<String> gPane = new GraphPane<>(false);
+		GraphPane<String> gPane = new GraphPane<>(true);
 		gPane.setMinSize(1000, 800);
 		sp.setContent(gPane);
 
@@ -49,6 +49,7 @@ public class bootstrap extends Application {
 		bp3.setCenter(bfs);
 
 		final RadioButton radioBt = new RadioButton("´øÈ¨Í¼");
+		radioBt.setSelected(true);
 		BorderPane bp4 = new BorderPane();
 		bp4.setPrefHeight(40);
 		bp4.setCenter(radioBt);
@@ -95,7 +96,7 @@ public class bootstrap extends Application {
 				new SpaceLabel(), bp7, new SpaceLabel(), bp8, new SpaceLabel(), bp9, new SpaceLabel());
 
 		body.getChildren().add(weightGraphPart);
-		weightGraphPart.setVisible(false);
+		weightGraphPart.setVisible(true);
 
 		Scene scene = new Scene(body);
 

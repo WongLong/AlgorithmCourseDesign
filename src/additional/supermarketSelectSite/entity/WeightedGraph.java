@@ -106,11 +106,11 @@ public class WeightedGraph<E> extends AbstractGraph<E> {
 			T.add(v);
 			totalWeight += smallestWeight;
 		}
-
+		
 		return new MST(startingIndex, parent, T, totalWeight);
 	}
 
-	private List<PriorityQueue<WeightedEdge>> deepClone(
+	public List<PriorityQueue<WeightedEdge>> deepClone(
 			List<PriorityQueue<WeightedEdge>> queues) {
 		List<PriorityQueue<WeightedEdge>> copiedQueues = new ArrayList<PriorityQueue<WeightedEdge>>();
 
