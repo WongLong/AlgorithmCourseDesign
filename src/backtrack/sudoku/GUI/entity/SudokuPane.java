@@ -182,6 +182,6 @@ public class SudokuPane extends GridPane {
 	}
 
 	public int[][] getSudoku() {
-		return sudoku;
+		return clone(sudoku);
 	}
 }
