@@ -16,6 +16,6 @@ public class SudokuLabel extends Label {
 		this.setTextAlignment(TextAlignment.CENTER);
 		this.setAlignment(Pos.CENTER);
 		
-		this.setFont(Font.font("STKaiTi", FontWeight.BOLD, FontPosture.ITALIC, 25));
+		this.setFont(Font.font("STKaiTi", FontWeight.BOLD, FontPosture.ITALIC, 50));
 	}
 }
