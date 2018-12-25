@@ -39,6 +39,7 @@ public class SudokuPane extends GridPane {
 	}
 
 	public List<int[][]> process() {
+		this.result.clear();
 		process(0, 0);
 
 		return this.result;

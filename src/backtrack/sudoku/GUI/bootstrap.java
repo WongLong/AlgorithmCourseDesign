@@ -18,6 +18,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class bootstrap extends Application {
@@ -41,6 +42,7 @@ public class bootstrap extends Application {
 		Scene scene = new Scene(main);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("数独问题找解");
+		primaryStage.setResizable(false);
 		primaryStage.show();
 
 		findSolution.setOnAction(new EventHandler<ActionEvent>() {
@@ -77,6 +79,8 @@ public class bootstrap extends Application {
 				Stage stage = new Stage();
 				stage.setScene(scene);
 				stage.setTitle("数独所有解");
+				stage.initModality(Modality.APPLICATION_MODAL);
+				stage.setResizable(false);
 				stage.show();
 
 				last.setOnAction(new EventHandler<ActionEvent>() {
