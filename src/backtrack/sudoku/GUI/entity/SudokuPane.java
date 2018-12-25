@@ -11,7 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
 public class SudokuPane extends GridPane {
-	private List<int[][]> result; // 存放结果
+	private ArrayList<int[][]> result; // 存放结果
 	private int[][] sudoku;
 	private List<Map<Integer, Integer>> row; // 行
 	private List<Map<Integer, Integer>> col; // 列
@@ -38,11 +38,12 @@ public class SudokuPane extends GridPane {
 		this.draw(true, null);
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<int[][]> process() {
 		this.result.clear();
 		process(0, 0);
 
-		return this.result;
+		return (List<int[][]>)this.result.clone();
 	}
 
 	public void draw(boolean clickable, int[][] oldSudoku) {

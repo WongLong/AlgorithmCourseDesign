@@ -79,7 +79,6 @@ public class bootstrap extends Application {
 				Stage stage = new Stage();
 				stage.setScene(scene);
 				stage.setTitle("数独所有解");
-				stage.initModality(Modality.APPLICATION_MODAL);
 				stage.setResizable(false);
 				stage.show();
 
