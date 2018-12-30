@@ -14,24 +14,20 @@ public class bootstrap {
 		Merchandise[] merchandises = createMerchandise(numberOfMerchandise, totalIntegral);
 		System.out.println("随机生成的商品列表如下：");
 		printMerchandise(merchandises);
-		process(merchandises, totalIntegral);
+		findIntegralProblemSolve(merchandises, totalIntegral);
 	}
 
-	private static void process(Merchandise[] merchandises, int totalIntegral) {
+	private static void findIntegralProblemSolve(Merchandise[] merchandises, int totalIntegral) {
 		table = new int[merchandises.length + 1][totalIntegral + 1];
 
-		for (int i = 0; i < table.length; i++) {
-			for (int j = 0; j < table[i].length; j++) {
-				if (i == 0 || j == 0) {
-					table[i][j] = 0;
+		for (int i = 1; i < table.length; i++) {
+			for (int j = 1; j < table[i].length; j++) {
+				if (j >= merchandises[i - 1].getIntegral()) {
+					table[i][j] = Math.max(
+							table[i - 1][j - merchandises[i - 1].getIntegral()] + merchandises[i - 1].getValue(),
+							table[i - 1][j]);
 				} else {
-					if (j >= merchandises[i - 1].getIntegral()) {
-						table[i][j] = Math.max(
-								table[i - 1][j - merchandises[i - 1].getIntegral()] + merchandises[i - 1].getValue(),
-								table[i - 1][j]);
-					} else {
-						table[i][j] = table[i - 1][j];
-					}
+					table[i][j] = table[i - 1][j];
 				}
 			}
 		}
@@ -66,14 +62,14 @@ public class bootstrap {
 		if (index > 0) {
 			if (table[index][integral] == table[index - 1][integral]) {
 				return printRes(index - 1, integral, merchandises);
-			}else {
+			} else {
 				int expend = printRes(index - 1, integral - merchandises[index - 1].getIntegral(), merchandises);
 				System.out.print("第" + index + "个商品\t");
-				
+
 				return merchandises[index - 1].getIntegral() + expend;
 			}
 		}
-		
+
 		return 0;
 	}
 }

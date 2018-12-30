@@ -35,7 +35,7 @@ public class bootstrap {
 		g.printEdges();
 
 		for (int i = 0; i < numberOfVertices; i++) {
-			dfs(g, i);
+			findStrongConnectivity(g, i);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class bootstrap {
 		return edges;
 	}
 
-	public static void dfs(UnweightedGraph<Integer> g, int start) {
+	public static void findStrongConnectivity(UnweightedGraph<Integer> g, int start) {
 		if (DFN[start] == 0) {
 			DFN[start] = count++;
 			Low[start] = DFN[start];
@@ -78,7 +78,7 @@ public class bootstrap {
 			for (int i = 0; i < g.getNeighbors(start).size(); i++) {
 				j = g.getNeighbors(start).get(i);
 				if (DFN[j] == 0) { // ¶¥µãjÎ´±»±éÀú
-					dfs(g, j);
+					findStrongConnectivity(g, j);
 					Low[start] = Math.min(Low[start], Low[j]);
 				} else if (inStack[j]) {
 					Low[start] = Math.min(Low[start], DFN[j]);

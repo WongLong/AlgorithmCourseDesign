@@ -9,6 +9,7 @@ public class bootstrap {
 		int k = 10;
 		int n = 30;
 		
+		System.out.println("k = " + k + "\tn = " + n);
 		long time = System.currentTimeMillis();
 		System.out.println(Memorandum.binomial(k, n));
 		System.out.println("±¸ÍüÂ¼ºÄÊ±£º" + (System.currentTimeMillis() - time) + "ms");

@@ -39,9 +39,9 @@ public class SudokuPane extends GridPane {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<int[][]> process() {
+	public List<int[][]> findSudokuSolve() {
 		this.result.clear();
-		process(0, 0);
+		findSudokuSolve(0, 0);
 
 		return (List<int[][]>)this.result.clone();
 	}
@@ -99,7 +99,7 @@ public class SudokuPane extends GridPane {
 		this.setGridLinesVisible(true);
 	}
 
-	private void process(int r, int c) {
+	private void findSudokuSolve(int r, int c) {
 		if (r == 8 && c == 9) {
 			result.add(clone(sudoku));
 
@@ -123,7 +123,7 @@ public class SudokuPane extends GridPane {
 					colMap.remove(i);
 					lowMap.remove(i);
 
-					process(r, c + 1);
+					findSudokuSolve(r, c + 1);
 
 					rowMap.put(i, i);
 					colMap.put(i, i);
@@ -132,7 +132,7 @@ public class SudokuPane extends GridPane {
 				}
 			}
 		} else {
-			process(r, c + 1);
+			findSudokuSolve(r, c + 1);
 		}
 	}
 

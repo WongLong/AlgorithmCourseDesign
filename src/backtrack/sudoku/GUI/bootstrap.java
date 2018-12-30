@@ -48,7 +48,7 @@ public class bootstrap extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				int[][] oldSudoku = pane.getSudoku();
-				List<int[][]> result = pane.process();
+				List<int[][]> result = pane.findSudokuSolve();
 				if (result.size() == 0) {
 					Alert alert = new Alert(AlertType.WARNING, "该数独无解", ButtonType.YES);
 					alert.showAndWait();

@@ -5,11 +5,16 @@ public class bootstrap {
 	private static int[][] flag;
 
 	public static void main(String[] args) {
-		int numberOfStation = 5;
-		int[][] rent = getRent(numberOfStation);
+		int numberOfStation = 10;
 		table = new int[numberOfStation - 1][numberOfStation];
 		flag = new int[numberOfStation - 1][numberOfStation];
 
+		findCharteringProblemSolve(numberOfStation);
+		
+	}
+	
+	private static void findCharteringProblemSolve(int numberOfStation) {
+		int[][] rent = getRent(numberOfStation);
 		for (int i = 1; i < table[0].length; i++) {
 			for (int j = i - 1; j >= 0; j--) {
 				int min = rent[j][i];

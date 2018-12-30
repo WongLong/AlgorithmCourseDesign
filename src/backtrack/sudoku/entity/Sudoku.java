@@ -19,14 +19,14 @@ public class Sudoku {
 		printSudoku();
 	}
 	
-	public void process() {
-		process(0, 0);
+	public void findSudokuSolve() {
+		findSudokuSolve(0, 0);
 		if(count == 0) {
 			System.out.println("该数独无解！");
 		}
 	}
 
-	private void process(int r, int c) {
+	private void findSudokuSolve(int r, int c) {
 		if (r == 8 && c == 9) {
 			count++;
 			System.out.println("解" + count + "：");
@@ -52,7 +52,7 @@ public class Sudoku {
 					colMap.remove(i);
 					lowMap.remove(i);
 
-					process(r, c + 1);
+					findSudokuSolve(r, c + 1);
 
 					rowMap.put(i, i);
 					colMap.put(i, i);
@@ -61,7 +61,7 @@ public class Sudoku {
 				}
 			}
 		} else {
-			process(r, c + 1);
+			findSudokuSolve(r, c + 1);
 		}
 	}
 
